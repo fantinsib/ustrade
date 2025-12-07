@@ -1,7 +1,7 @@
 # ustrade
 
 > A lightweight and intuitive Python client for the **U.S. Census Bureau International Trade API**.  
-Fetch cleanly formatted **imports**, **exports**, **HS codes**, and **country metadata** — all returned as tidy pandas DataFrames.
+> Allows to fetch imports and exports between the US and commercial partners - based on Harmonized System codes (HS)
 
 <p align="left">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" />
