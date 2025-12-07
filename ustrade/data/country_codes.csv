@@ -1,0 +1,241 @@
+,Country,Code,ISO
+0,Afghanistan,5310,AF
+1,Albania,4810,AL
+2,Algeria,7210,DZ
+3,American Samoa,9510,AS
+4,Andorra,4271,AD
+5,Angola,7620,AO
+6,Anguilla,2481,AI
+7,Antigua and Barbuda,2484,AG
+8,Argentina,3570,AR
+9,Armenia,4631,AM
+10,Aruba,2779,AW
+11,Australia,6021,AU
+12,Austria,4330,AT
+13,Azerbaijan,4632,AZ
+14,Bahamas,2360,BS
+15,Bahrain,5250,BH
+16,Bangladesh,5380,BD
+17,Barbados,2720,BB
+18,Belarus,4622,BY
+19,Belgium,4231,BE
+20,Belize,2080,BZ
+21,Benin,7610,BJ
+22,Bermuda,2320,BM
+23,Bhutan,5682,BT
+24,Bolivia,3350,BO
+25,Bosnia and Herzegovina,4793,BA
+26,Botswana,7930,BW
+27,Brazil,3510,BR
+28,British Indian Ocean Territory,7810,IO
+29,British Virgin Islands,2482,VG
+30,Brunei,5610,BN
+31,Bulgaria,4870,BG
+32,Burkina Faso,7600,BF
+33,Burma (Myanmar),5460,MM
+34,Burundi,7670,BI
+35,Cabo Verde,7643,CV
+36,Cambodia,5550,KH
+37,Cameroon,7420,CM
+38,Canada,1220,CA
+39,Cayman Islands,2440,KY
+40,Central African Republic,7540,CF
+41,Chad,7560,TD
+42,Chile,3370,CL
+43,China,5700,CN
+44,Christmas Island (in the Indian Ocean),6024,CX
+45,Cocos (Keeling) Islands,6023,CC
+46,Colombia,3010,CO
+47,Comoros,7890,KM
+48,"Congo, Democratic Republic of the Congo (formerly Zaire)",7660,CD
+49,"Congo, Republic of the Congo",7630,CG
+50,Cook Islands,6142,CK
+51,Costa Rica,2230,CR
+52,Cote d'Ivoire,7480,CI
+53,Croatia,4791,HR
+54,Cuba,2390,CU
+55,Curacao,2777,CW
+56,Cyprus,4910,CY
+57,Czech Republic,4351,CZ
+58,"Denmark, except Greenland",4099,DK
+59,Djibouti,7770,DJ
+60,Dominica,2486,DM
+61,Dominican Republic,2470,DO
+62,Ecuador,3310,EC
+63,Egypt,7290,EG
+64,El Salvador,2110,SV
+65,Equatorial Guinea,7380,GQ
+66,Eritrea,7741,ER
+67,Estonia,4470,EE
+68,Eswatini,7950,SZ
+69,Ethiopia,7749,ET
+70,Falkland Islands (Islas Malvinas),3720,FK
+71,Faroe Islands,4091,FO
+72,Fiji,6863,FJ
+73,Finland,4050,FI
+74,France,4279,FR
+75,French Guiana,3170,GF
+76,French Polynesia,6414,PF
+77,French Southern and Antarctic Lands,7905,TF
+78,Gabon,7550,GA
+79,Gambia,7500,GM
+80,Gaza Strip administered by Israel,5082,GZ
+81,Georgia,4633,GE
+82,Germany (Federal Republic of Germany),4280,DE
+83,Ghana,7490,GH
+84,Gibraltar,4720,GI
+85,Greece,4840,GR
+86,Greenland,1010,GL
+87,Grenada,2489,GD
+88,Guadeloupe,2831,GP
+89,Guam,9350,GU
+90,Guatemala,2050,GT
+91,Guinea,7460,GN
+92,Guinea-Bissau,7642,GW
+93,Guyana,3120,GY
+94,Haiti,2450,HT
+95,Heard Island and McDonald Islands,6029,HM
+96,Holy See (Vatican City),4752,VA
+97,Honduras,2150,HN
+98,Hong Kong,5820,HK
+99,Hungary,4370,HU
+100,Iceland,4000,IS
+101,India,5330,IN
+102,Indonesia,5600,ID
+103,Iran,5070,IR
+104,Iraq,5050,IQ
+105,Ireland,4190,IE
+106,Israel,5081,IL
+107,Italy,4759,IT
+108,Jamaica,2410,JM
+109,Japan,5880,JP
+110,Jordan,5110,JO
+111,Kazakhstan,4634,KZ
+112,Kenya,7790,KE
+113,Kiribati,6226,KI
+114,Kosovo,4803,KV
+115,Kuwait,5130,KW
+116,Kyrgyzstan,4635,KG
+117,Laos (Lao People's Democratic Republic),5530,LA
+118,Latvia,4490,LV
+119,Lebanon,5040,LB
+120,Lesotho,7990,LS
+121,Liberia,7650,LR
+122,Libya,7250,LY
+123,Liechtenstein,4411,LI
+124,Lithuania,4510,LT
+125,Luxembourg,4239,LU
+126,Macao,5660,MO
+127,North Macedonia,4794,MK
+128,Madagascar,7880,MG
+129,Malawi,7970,MW
+130,Malaysia,5570,MY
+131,Maldives,5683,MV
+132,Mali,7450,ML
+133,Malta,4730,MT
+134,Marshall Islands,6810,MH
+135,Martinique,2839,MQ
+136,Mauritania,7410,MR
+137,Mauritius,7850,MU
+138,Mayotte,7881,YT
+139,Mexico,2010,MX
+140,"Micronesia, Federated States of",6820,FM
+141,Moldova (Republic of Moldova),4641,MD
+142,Monaco,4272,MC
+143,Mongolia,5740,MN
+144,Montenegro,4804,ME
+145,Montserrat,2485,MS
+146,Morocco,7140,MA
+147,Mozambique,7870,MZ
+148,Namibia,7920,NA
+149,Nauru,6862,NR
+150,Nepal,5360,NP
+151,Netherlands,4210,NL
+152,New Caledonia,6412,NC
+153,New Zealand,6141,NZ
+154,Nicaragua,2190,NI
+155,Niger,7510,NE
+156,Nigeria,7530,NG
+157,Niue,6144,NU
+158,Norfolk Island,6022,NF
+159,North Korea (Democratic People's Republic of Korea),5790,KP
+160,Northern Mariana Islands,9610,MP
+161,Norway,4039,NO
+162,Oman,5230,OM
+163,Pakistan,5350,PK
+164,Palau,6830,PW
+165,Panama,2250,PA
+166,Papua New Guinea,6040,PG
+167,Paraguay,3530,PY
+168,Peru,3330,PE
+169,Philippines,5650,PH
+170,Pitcairn Islands,6225,PN
+171,Poland,4550,PL
+172,Portugal,4710,PT
+173,Puerto Rico,9030,PR
+174,Qatar,5180,QA
+175,Reunion,7904,RE
+176,Romania,4850,RO
+177,Russia,4621,RU
+178,Rwanda,7690,RW
+179,Saint Helena,7580,SH
+180,Saint Kitts and Nevis,2483,KN
+181,Saint Lucia,2487,LC
+182,Saint Pierre and Miquelon,1610,PM
+183,Saint Vincent and the Grenadines,2488,VC
+184,Samoa (Western Samoa),6150,WS
+185,San Marino,4751,SM
+186,Sao Tome and Principe,7644,ST
+187,Saudi Arabia,5170,SA
+188,Senegal,7440,SN
+189,Serbia,4801,RS
+190,Seychelles,7800,SC
+191,Sierra Leone,7470,SL
+192,Singapore,5590,SG
+193,Sint Maarten,2774,SX
+194,Slovakia,4359,SK
+195,Slovenia,4792,SI
+196,Solomon Islands,6223,SB
+197,Somalia,7700,SO
+198,South Africa,7910,ZA
+199,South Korea (Republic of Korea),5800,KR
+200,South Sudan,7323,SS
+201,Spain,4700,ES
+202,Sri Lanka,5420,LK
+203,Sudan,7321,SD
+204,Suriname,3150,SR
+205,Svalbard and Jan Mayen,4031,SJ
+206,Sweden,4010,SE
+207,Switzerland,4419,CH
+208,Syria (Syrian Arab Republic),5020,SY
+209,Taiwan,5830,TW
+210,Tajikistan,4642,TJ
+211,Tanzania (United Republic of Tanzania),7830,TZ
+212,Thailand,5490,TH
+213,Timor-Leste,5601,TL
+214,Togo,7520,TG
+215,Tokelau,6143,TK
+216,Tonga,6864,TO
+217,Trinidad and Tobago,2740,TT
+218,Tunisia,7230,TN
+219,Turkey,4890,TR
+220,Turkmenistan,4643,TM
+221,Turks and Caicos Islands,2430,TC
+222,Tuvalu,6227,TV
+223,Uganda,7780,UG
+224,Ukraine,4623,UA
+225,United Arab Emirates,5200,AE
+226,United Kingdom,4120,GB
+227,United States Minor Outlying Islands,9800,UM
+228,United States of America,1000,US
+229,Uruguay,3550,UY
+230,Uzbekistan,4644,UZ
+231,Vanuatu,6224,VU
+232,Venezuela,3070,VE
+233,Vietnam,5520,VN
+234,Virgin Islands of the United States,9110,VI
+235,Wallis and Futuna,6413,WF
+236,West Bank administered by Israel,5083,WE
+237,Yemen (Republic of Yemen),5210,YE
+238,Zambia,7940,ZM
+239,Zimbabwe,7960,ZW
