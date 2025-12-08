@@ -157,7 +157,7 @@ class CensusClient:
         """
         Returns the imports on the specified period
         
-        Args: 
+        ## Args:
             country (str)
             product (str)
             start (str) : format should be "YYYY-MM"
@@ -167,7 +167,15 @@ class CensusClient:
     
 
     def get_exports_on_period(self, country: str, product: str, start: str, end: str)->pd.DataFrame:
+        """
+        Returns the imports on the specified period
         
+        ## Args:
+            country (str)
+            product (str)
+            start (str) : format should be "YYYY-MM"
+            end (str): same format
+        """
         return self._get_flow_on_period(country, product, start, end, 'exports')
 
 
