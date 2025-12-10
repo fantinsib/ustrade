@@ -5,16 +5,15 @@ import pandas as pd
 from urllib.parse import urlencode
 from . import countries
 from . import codes
+from ustrade.codes import HSCode
+from ustrade.errors import *
 
 class CensusClient:
 
 
-    class APIError(Exception):
-        pass
-
-    def __init__(self, timeout=10, rate_limit =5):
+    def __init__(self, timeout=10, retries = 3):
         self.timeout = timeout
-        self.rate_limit = rate_limit
+        self.retries = retries
         self._country_codes = countries._load_countries()
         self._country_by_code = {c.code: c for c in self._country_codes}
         self._country_by_name = {c.name.lower(): c for c in self._country_codes}
@@ -23,8 +22,8 @@ class CensusClient:
         self.BASE_URL = "api.census.gov"
         self.BASE_PORT = 443
 
-        self._hs_codes = codes._load_codes()
-        self._codes_by_hs_codes = {c.hscode: c for c in self._hs_codes}
+        self._hs_codes, self._codes_by_hs_codes = codes._load_codes()
+        self._code_tree = codes.build_tree_from_codes(self._hs_codes)
 
         self.col_mapping = {
             
@@ -43,8 +42,6 @@ class CensusClient:
             "CON_VAL_MO": 'consumption_import_value',
             "YEAR": "year",
             "MONTH": "month"
-
-
         }
 
         self.type_map = {
@@ -83,6 +80,8 @@ class CensusClient:
         except OSError as e:
             print(e)
             return False
+        
+                                    ##### DATA RESEARCH FUNCTIONS #######
 
     def get_imports(self, country : str, product : str, date : str)-> pd.DataFrame:
         """
@@ -218,7 +217,9 @@ class CensusClient:
         try:
             data = response.json()
         except requests.exceptions.JSONDecodeError:
-            return pd.DataFrame()
+            raise EmptyResult(
+                f"The query '{response.url}' did not return any results."
+            )
         header, rows = data[0], data[1:]
 
         df = pd.DataFrame(rows, columns=header)
@@ -258,7 +259,34 @@ class CensusClient:
         df = df.loc[:, ~df.columns.duplicated()]
 
         return self._apply_types(df)
+    
 
+
+    def _apply_types(self, df):
+        for col, t in self.type_map.items():
+            if col not in df:
+                continue
+
+            if t == "int":
+                df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype(int)
+
+            elif t == "float":
+                df[col] = pd.to_numeric(df[col], errors="coerce").astype(float)
+
+            elif t == "datetime":
+                    df[col] = (
+                    df[col].astype(str).str.strip()      
+                    .str.replace(r"$", "-01", regex=True)
+                    .pipe(pd.to_datetime, errors="coerce")
+                    )
+
+            elif t == "str":
+                df[col] = df[col].astype(str)
+
+        return df.sort_values(by = "date").reset_index(drop=True)
+
+
+                                    ####### COUNTRIES FUNCTIONS #######
 
     def get_country_by_name(self, country: str)-> countries.Country:
         """
@@ -277,17 +305,7 @@ class CensusClient:
         Search a country with its ISO 2 ID
         """
         return self._country_by_iso[iso2.upper()]
-    
-    def get_desc_from_code(self, hs: str)->str:
-        """
-        Returns the description of the specified HS code
 
-        Args:
-            hs (str): the HS code (ex: )
-        """
-        return self._codes_by_hs_codes[str(hs)].description
-
-        
     def _normalize_country(self, inp, output="code"):
 
         def return_output(country):
@@ -321,34 +339,94 @@ class CensusClient:
         return return_output(country)
     
 
-    def _apply_types(self, df):
-        for col, t in self.type_map.items():
-            if col not in df:
-                continue
+                                ####### HS CODES FUNCTIONS #######
 
-            if t == "int":
-                df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0).astype(int)
+    
+    def get_desc_from_code(self, hs: str)->str:
+        """
+        Returns the description of the specified HS code
 
-            elif t == "float":
-                df[col] = pd.to_numeric(df[col], errors="coerce").astype(float)
-
-            elif t == "datetime":
-                    df[col] = (
-                    df[col].astype(str).str.strip()      
-                    .str.replace(r"$", "-01", regex=True)
-                    .pipe(pd.to_datetime, errors="coerce")
+        ## Args:
+            hs (str): the HS code (ex: '1806')
+        """
+        if isinstance(hs, str):
+            if hs in self._codes_by_hs_codes:
+                return self._codes_by_hs_codes[hs].description
+            else:
+                if len(hs) == 1:
+                    raise CodeNotFoundError(
+                        f"HS code '{hs}' could not be found in the listed codes. Did you mean '0{hs}'?"
                     )
+                else:
+                    raise CodeNotFoundError(
+                        f"HS code '{hs}' could not be found in the listed codes."
+                    )
+        else:
+            raise InvalidCodeError(
+                f"Code must be a str instance - received a {type(hs).__name__!r}"
+            )
+        
+    def get_product(self, hs: str) -> HSCode:
+        """
+        Returns all the informations on a specified HS code through a HSCode object
 
-            elif t == "str":
-                df[col] = df[col].astype(str)
+        ## Args:
+            hs (str): the HS code (ex: '1806')
+        """
+        if isinstance(hs, str):
+            if hs in self._codes_by_hs_codes:
+                return self._codes_by_hs_codes[hs]
+            else:
+                if len(hs) == 1:
+                    raise CodeNotFoundError(
+                        f"HS code '{hs}' could not be found in the listed codes. Did you mean '0{hs}'?"
+                    )
+                else:
+                    raise CodeNotFoundError(
+                        f"HS code '{hs}' could not be found in the listed codes."
+                    )
+                       
+        else:
+            raise InvalidCodeError(
+                f"Code must be a str instance - received a {type(hs).__name__!r}"
+            )
 
-        return df.sort_values(by = "date").reset_index(drop=True)
+    def get_children_codes(self, code: str | HSCode, return_names = True)-> dict | list[str]:
+        """
+        Returns a dict of the codes and their desc directly attached to code in the hierarchy
 
+        ## Args:
+            code (str | HSCode): either the code as a string or the HSCode object
+            return_names (bool): returns a dict with the code and the description if true, a list of the codes if false
+        
+        """
+        if isinstance(code, str):
+            if code in self._codes_by_hs_codes:
+                if return_names:
+                    res = {}
+                    for p in self.get_product(code)._get_children():
+                        res[p] = self.get_desc_from_code(p)
+                    return res
+                else:
+                    return self.get_product(code)._get_children()
 
-
-
-
-
+            else:
+                raise CodeNotFoundError(
+                    f"HS code '{code}' could not be found in the listed codes"
+                )
+        
+        elif isinstance(code, HSCode):
+            if code in self._codes_by_hs_codes:
+                return code._get_children()
+            else:
+                raise CodeNotFoundError(
+                    f"HS code '{code.hscode}' could not be found in the listed codes"
+                )
+        else:
+            raise InvalidCodeError(
+                f"Code must be a str or a HSCode instance - received a {type(code).__name__!r}"
+            )
+        
     
 
 

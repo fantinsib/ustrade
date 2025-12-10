@@ -11,7 +11,7 @@
 
 ---
 
-## 🚀 Features
+## Features
 
 - **Simple API**: `ust.get_imports()`, `ust.get_exports()`
 - Automatic normalization of country inputs:
@@ -25,7 +25,7 @@
 
 ---
 
-## 📦 Installation
+## Installation
 
 Clone this repository and install via pip in editable mode:
 
@@ -40,18 +40,20 @@ pip install -e .
 
 import ustrade as ust
 
-# Example: Italian imports of pasta and couscous (HS 1902) in January 2020
-df = ust.get_imports("FR", "1902", "2020-01")
+# Example: Mexican imports of fruits and nuts between January 2010 and January 2025
+df = ust.get_imports_on_period("Mexico", "08", "2010-01", "2025-01")
 print(df)
 ```
 
-## 📘 Full API Reference
+## Full API Reference
 
-### 🔹 `get_imports(country, product, date)`
+## *Fetching Data*
+
+### • `get_imports(country, product, date)`
 Fetch monthly import data for a given country and HS code.
 
 **Parameters:**
-- `country` — country name (`France`), ISO2 (`FR`), or Census code (`4279`)
+- `country` — country name (`France`), ISO2 (`FR`), Census code (`4279`) or `Country` instance
 - `product` — HS code as string or int (e.g. `2701`)
 - `date` — `YYYY-MM` format (e.g. `2020-01`)
 
@@ -60,7 +62,9 @@ Fetch monthly import data for a given country and HS code.
 ust.get_imports("FR", "10", "2025-01")
 ```
 
-### 🔹 `get_exports(country, product, date)`
+---
+
+### • `get_exports(country, product, date)`
 Fetch monthly export data for a given country and HS code.
 
 **Example:**
@@ -68,31 +72,38 @@ Fetch monthly export data for a given country and HS code.
 ust.get_exports("GB", "73", "2019-01")
 ```
 
-### 🔹 `get_country_by_name(name)`
-Look up a country by its full name (case-insensitive).
+---
+
+### • `get_imports_on_period(country, product, start, end)`
+Fetch a DataFrame containing monthly imports for a given country and HS code
+
+**Parameters:**
+- `country` — country name (`France`), ISO2 (`FR`), Census code (`4279`) or `Country` instance
+- `product` — HS code as string or int (e.g. `2701`)
+- `start` and `end` — `YYYY-MM` format (e.g. `2020-01`)
 
 **Example:**
 ```python
-ust.get_country_by_name("France")
+ust.get_imports_on_period("Mexico", "27", "2010-01", "2025-01")
 ```
 
-### 🔹 `get_country_by_code(code)`
-Look up a country using its U.S. Census numeric code.
+---
+
+### • `get_exports_on_period(country, product, start, end)`
+Fetch a DataFrame containing monthly exports for a given country and HS code
 
 **Example:**
 ```python
-ust.get_country_by_code("4279")
+ust.get_exports_on_period("France", "10", "2020-01", "2023-01")
 ```
 
-### 🔹 `get_country_by_iso2(iso)`
-Look up a country by ISO2 code.
+---
 
-**Example:**
-```python
-ust.get_country_by_iso2("FR")
-```
+## *Exploring Codes*
 
-### 🔹 `get_desc_from_code(hs)`
+HS Codes follow a tree hierarchy. 
+
+### • `get_desc_from_code(hs)`
 Return the description associated with an HS code.
 
 **Example:**
@@ -100,15 +111,53 @@ Return the description associated with an HS code.
 ust.get_desc_from_code("2701")
 ```
 
+### • `get_children_codes(code, return_names)`
+Return a dictionnary of the codes and descriptions attached to the parent code if return_names is True, and a list of the code if return_names if False.
+
+**Example:**
+```python
+ust.get_children_codes("10")
+```
+
+
+### • `get_product(hs)`
+Return the HSCode instance associated with the hs code specified.
+
+**Example:**
+```python
+ust.get_product("10")
+```
+
+## *Exploring countries*
+
+### • `get_country_by_name(name)`
+Look up a country by its full name (case-insensitive).
+
+**Example:**
+```python
+ust.get_country_by_name("France")
+```
+
+### • `get_country_by_code(code)`
+Look up a country using its U.S. Census numeric code.
+
+**Example:**
+```python
+ust.get_country_by_code("4279")
+```
+
+### • `get_country_by_iso2(iso)`
+Look up a country by ISO2 code.
+
+**Example:**
+```python
+ust.get_country_by_iso2("FR")
+```
+
 ---
 
 ## 🧩 Notes
 
-- All functions return a **pandas DataFrame** unless otherwise noted.
+- All data retrieval functions return a **pandas DataFrame** unless otherwise noted.
 - Column names are automatically standardized (see schema section).
-- `country` inputs can be:
-  - `France`
-  - `FR`
-  - `4279`
-
-  → all resolve to the same internal country object.
+- This library is still in <1.0.0 version and can change. Contributions are always welcome !

@@ -1,6 +1,8 @@
 import pandas as pd
-from .countries import Country
+from .countries import *
 from .client import CensusClient
+from .codes import *
+from .errors import *
 
 _default_client: CensusClient | None = None
 
@@ -58,7 +60,7 @@ def get_exports_on_period(country: str, product: str, start: str, end: str)->pd.
     """
     return _get_default_client().get_exports_on_period(country, product, start, end)
 
-def get_country_by_name(country: str)->countries.Country:
+def get_country_by_name(country: str)-> Country:
     """
     Search a country with its name
 
@@ -94,14 +96,37 @@ def get_desc_from_code(hs: str):
     """
     return _get_default_client().get_desc_from_code(hs)
 
+def get_children_codes(code: str | HSCode, return_names = True)-> dict | list[str]:
+    """
+    Returns a dict of the codes and their desc directly attached to code in the hierarchy
+
+    ## Args:
+        code (str | HSCode): either the code as a string or the HSCode object
+        return_names (bool): returns a dict with the code and the description if true, a list of the codes if false    
+    """
+    return _get_default_client().get_children_codes(code, return_names)
+
+def get_product(hs: str) -> HSCode:
+    """
+    Returns all the informations on a specified HS code through a HSCode object
+
+    ## Args:
+        hs (str): the HS code (ex: '1806')
+    """
+    return _get_default_client().get_product(hs)
+
 
 __all__ = [
     "CensusClient",
     "Country",
     "get_imports",
     "get_exports",
+    "get_imports_on_period",
+    "get_exports_on_period"
     "get_country_by_name",
     "get_country_by_code",
     "get_country_by_iso2",
     "get_desc_from_code",
+    "get_children_code", 
+    "get_product"
 ]

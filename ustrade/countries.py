@@ -11,6 +11,7 @@ class Country:
 
 
 
+
 def _load_countries():
     csv_path = files(__package__) / "data" / "country_codes.csv"
 
