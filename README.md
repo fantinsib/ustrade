@@ -53,13 +53,14 @@ print(df)
 Fetch monthly import data for a given country and HS code.
 
 **Parameters:**
-- `country` — country name (`France`), ISO2 (`FR`), Census code (`4279`) or `Country` instance
-- `product` — HS code as string or int (e.g. `2701`)
+- `country` — country name (`France`), ISO2 (`FR`), Census code (`4279`) or `Country` instance, or a list of the previous
+- `product` — HS code as string (e.g. `2701`) or list of string
 - `date` — `YYYY-MM` format (e.g. `2020-01`)
 
 **Example:**
 ```python
 ust.get_imports("FR", "10", "2025-01")
+ust.get_imports(["France", "GB"], ["12", "13"], "2018-03")
 ```
 
 ---
@@ -70,6 +71,7 @@ Fetch monthly export data for a given country and HS code.
 **Example:**
 ```python
 ust.get_exports("GB", "73", "2019-01")
+ust.get_exports(["France", "GB"], ["08", "09"], "2018-03")
 ```
 
 ---
@@ -78,13 +80,14 @@ ust.get_exports("GB", "73", "2019-01")
 Fetch a DataFrame containing monthly imports for a given country and HS code
 
 **Parameters:**
-- `country` — country name (`France`), ISO2 (`FR`), Census code (`4279`) or `Country` instance
-- `product` — HS code as string or int (e.g. `2701`)
+- `country` — country name (`France`), ISO2 (`FR`), Census code (`4279`) or `Country` instance, or list of the previous
+- `product` — HS code as string (e.g. `2701`) or list of string
 - `start` and `end` — `YYYY-MM` format (e.g. `2020-01`)
 
 **Example:**
 ```python
 ust.get_imports_on_period("Mexico", "27", "2010-01", "2025-01")
+ust.get_imports_on_period(["France", "DE", "GB"], ["09", "08", "07"], "2016-01", "2018-01")
 ```
 
 ---

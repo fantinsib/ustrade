@@ -4,14 +4,15 @@ from datetime import datetime
 import pandas as pd
 from urllib.parse import urlencode
 from . import countries
+from .countries import Country
 from . import codes
-from ustrade.codes import HSCode
-from ustrade.errors import *
+from .codes import HSCode
+from .errors import *
 
 class CensusClient:
 
 
-    def __init__(self, timeout=10, retries = 3):
+    def __init__(self, timeout=60, retries = 3):
         self.timeout = timeout
         self.retries = retries
         self._country_codes = countries._load_countries()
@@ -83,63 +84,112 @@ class CensusClient:
         
                                     ##### DATA RESEARCH FUNCTIONS #######
 
-    def get_imports(self, country : str, product : str, date : str)-> pd.DataFrame:
+    def get_imports(self, country : str| Country | list[str | Country], product : str|list[str], date : str)-> pd.DataFrame:
         """
         Returns the import value from the US to the specified country of the product for the month
-
         Args:
-            country (str | countries.Country) : can be the ISO2 code, the full name, the Census Bureau code for this country, or a Country object
-            product (str) : HS code
-            date (str): the month, in format 'yyyy-mm'
+            country (str | Country | list[str | Country]) : can be the ISO2 code, the full name, the Census Bureau code for this country, or a Country object
+            product (str | list[str]) : HS code
+            date (str): the month, in format 'YYYY-MM'
+
+        Examples:
+        >>> ut.get_imports(["France", "GB"], ["12", "13"], "2018-03")
+        >>> ut.get_imports("GB", "12", "2018-03")
         """
-        return self._get_flow(country, product, date, "imports")
+        return self._get_flow(country, product, date=date, flux="imports")
     
-    def get_exports(self, country : str, product: str, date: str)-> pd.DataFrame:
+    def get_exports(self, country : str| Country | list[str | Country], product : str|list[str], date : str)-> pd.DataFrame:
         """
         Returns the export value from the US to the specified country of the product for the month
-
+        
         Args:
-            country (str | countries.Country) : can be the ISO2 code, the full name, the Census Bureau code for this country, or a Country object
-            product (str) : HS code
-            date (str): the month, in format 'yyyy-mm'
+            country (str | Country | list[str | Country]) : can be the ISO2 code, the full name, the Census Bureau code for this country, or a Country object
+            product (str | list[str]) : HS code
+            date (str): the date, in format 'YYYY-MM'
+        Examples:
+        >>> ut.get_exports(["France", "GB"], ["08", "09"], "2018-03")
+        >>> ut.get_exports("GB", "08", "2018-03")
         """
         return self._get_flow(country, product, date, "exports")
     
 
-    def _get_flow(self, country, product, date, flux):
+    def _build_params(self,
+                      country: str|list, 
+                      product: str|list, 
+                      flux: str, 
+                      date:str = None, 
+                      start:str = None, 
+                      end:str= None)->dict:
+        
+        if isinstance(country, (str, countries.Country)):
+            cty = self._normalize_country(country)
+            country = [cty]
+        if isinstance(country, list):
+            cty_list = []
+            for c in country:
+                cty_list.append(self._normalize_country(c))
+            country = cty_list
 
-        country = self._normalize_country(country)
-        dt = datetime.strptime(date, "%Y-%m")
-        year = dt.year
-        month = f"{dt.month:02d}"
+        if isinstance(product, str):
+            product = [product]
+        
+        
         flux_letter = flux[0].upper()
 
+        if date: 
+            dt = datetime.strptime(date, "%Y-%m")
+            year = dt.year
+            month = f"{dt.month:02d}"
+            date_range = False
 
-        if flux == 'imports':
-            params = {
-                "get": f"CTY_CODE,CTY_NAME,{flux_letter}_COMMODITY,{flux_letter}_COMMODITY_SDESC,GEN_VAL_MO,CON_VAL_MO",
-                f"{flux_letter}_COMMODITY": str(product),
-                "CTY_CODE": str(country),
-                "YEAR": year,
-                "MONTH": month,
-            }
+        if start and end:
+            dt_start = datetime.strptime(start, "%Y-%m")
+            year_start = dt_start.year
+            month_start = f"{dt_start.month:02d}"
 
-        if flux == "exports":
-            params = {
-                'get' : f"CTY_CODE,CTY_NAME,{flux_letter}_COMMODITY,{flux_letter}_COMMODITY_SDESC,ALL_VAL_MO",
-                f"{flux_letter}_COMMODITY": str(product),
-                "CTY_CODE": str(country),
-                "YEAR": year,
-                "MONTH": month
-            }
-
-        url = f"https://{self.BASE_URL}/data/timeseries/intltrade/{flux}/hs"
-
+            dt_end = datetime.strptime(end, "%Y-%m")
+            year_end = dt_end.year
+            month_end = f"{dt_end.month:02d}"
+            time_range = f"from+{year_start}-{month_start}+to+{year_end}-{month_end}"
+            date_range=True
         
-        response = requests.get(url, params=params, timeout=self.timeout)
+        #Base arguments ####
+        if flux == 'imports':
+            params = {"get": 
+                      f"CTY_CODE,CTY_NAME,{flux_letter}_COMMODITY,{flux_letter}_COMMODITY_SDESC,GEN_VAL_MO,CON_VAL_MO"}
+        
+        if flux == 'exports':
+            params = {'get' : 
+                      f"CTY_CODE,CTY_NAME,{flux_letter}_COMMODITY,{flux_letter}_COMMODITY_SDESC,ALL_VAL_MO"}
+
+        query = urlencode(params)
+
+        url = f"https://{self.BASE_URL}/data/timeseries/intltrade/{flux}/hs?{query}"
+
+        #Adding countries + codes: ####
+        for c in country:
+            url += f"&CTY_CODE={str(c)}"
+        for k in product:
+            url += f'&{flux_letter}_COMMODITY={str(k)}'
+
+        ### Adding Time ranges: ###
+
+        if date_range:
+            url += f"&time={time_range}"
+
+        else:
+            url += f'&YEAR={year}&MONTH={month}'
+        return url
+
+
+
+    def _get_flow(self, country, product, date, flux):
+
+        url = self._build_params(country, product, date= date,flux= flux)
+        
+        response = requests.get(url, timeout=self.timeout)
         response.raise_for_status()
         
-
         try:
             data = response.json()
         except requests.exceptions.JSONDecodeError:
@@ -152,63 +202,64 @@ class CensusClient:
         return (self._prepare_results(df))
 
 
-    def get_imports_on_period(self, country: str, product: str, start: str, end: str)->pd.DataFrame:
+    def get_imports_on_period(self, country : str| Country | list[str | Country], product : str|list[str], start: str, end: str)->pd.DataFrame:
         """
-        Returns the imports on the specified period
-        
-        ## Args:
-            country (str)
-            product (str)
-            start (str) : format should be "YYYY-MM"
-            end (str): same format
+        Return the imports on the specified period
+
+        Args:
+            country (str | Country | list[str | Country]):
+                ISO2 code, full name, Census Bureau code, or a Country object.
+            product (str | list[str]):
+                HS code.
+            start (str):
+                Starting date in format "YYYY-MM".
+            end (str):
+                Ending date in format "YYYY-MM".
+
+        Examples:
+            >>> ut.get_imports_on_period(["France", "DE", "GB"], ["09", "08", "07"], "2016-01", "2018-01")
+            >>> from ustrade import CensusClient
+            >>> c = CensusClient(timeout=120)
+            >>> c.get_imports_on_period(["France", "DE", "GB"], ["08", "07"], "2016-01", "2018-01")
+
+        Notes:
+            - Queries can take time to load.
+            - Consider increasing `timeout`.
+            - Data is only available from 2010-01.
         """
-        return self._get_flow_on_period(country, product, start, end, 'imports')
+        return self._get_flow_on_period(country, product, start=start,end= end,flux= 'imports')
     
 
-    def get_exports_on_period(self, country: str, product: str, start: str, end: str)->pd.DataFrame:
+    def get_exports_on_period(self, country : str| Country | list[str | Country], product : str|list[str], start: str, end: str)->pd.DataFrame:
         """
-        Returns the imports on the specified period
-        
-        ## Args:
-            country (str)
-            product (str)
-            start (str) : format should be "YYYY-MM"
-            end (str): same format
+        Return the exports on the specified period.
+
+        Args:
+            country (str | Country | list[str | Country]):
+                ISO2 code, full name, Census Bureau code, or a Country object.
+            product (str | list[str]):
+                HS code(s).
+            start (str):
+                Start date in format "YYYY-MM".
+            end (str):
+                End date in format "YYYY-MM".
+
+        Examples:
+            >>> ut.get_exports_on_period(["France", "DE", "GB"], ["09", "08", "07"], "2016-01", "2018-01")
+            >>> from ustrade import CensusClient
+            >>> c = CensusClient(timeout=120)
+            >>> c.get_exports_on_period(["France", "DE", "GB"], ["08", "07"], "2016-01", "2018-01")
+
+        Notes:
+            - Queries can take time to load.
+            - Consider increasing `timeout`.
+            - Data is only available from 2010-01.
         """
-        return self._get_flow_on_period(country, product, start, end, 'exports')
+        return self._get_flow_on_period(country, product, start=start, end=end, flux='exports')
 
 
     def _get_flow_on_period(self, country, product, start, end, flux):
-        country = self._normalize_country(country)
-        dt_start = datetime.strptime(start, "%Y-%m")
-        year_start = dt_start.year
-        month_start = f"{dt_start.month:02d}"
-
-        dt_end = datetime.strptime(end, "%Y-%m")
-        year_end = dt_end.year
-        month_end = f"{dt_end.month:02d}"
-
-        flux_letter = flux[0].upper()
-
-        time_range = f"from+{year_start}-{month_start}+to+{year_end}-{month_end}"
-
-        if flux == 'imports':
-            params = {
-                "get": f"CTY_CODE,CTY_NAME,{flux_letter}_COMMODITY,{flux_letter}_COMMODITY_SDESC,GEN_VAL_MO,CON_VAL_MO",
-                f"{flux_letter}_COMMODITY": str(product),
-                "CTY_CODE": str(country)
-                
-            }
-
-        if flux == "exports":
-            params = {
-                'get' : f"CTY_CODE,CTY_NAME,{flux_letter}_COMMODITY,{flux_letter}_COMMODITY_SDESC,ALL_VAL_MO",
-                f"{flux_letter}_COMMODITY": str(product),
-                "CTY_CODE": str(country)
-            }
-
-        query = urlencode(params)
-        url = f"https://{self.BASE_URL}/data/timeseries/intltrade/{flux}/hs?{query}&time={time_range}"
+        url = self._build_params(country, product, start = start,end = end,flux= flux)
 
         response = requests.get(url, timeout=self.timeout)
         response.raise_for_status()
@@ -306,7 +357,7 @@ class CensusClient:
         """
         return self._country_by_iso[iso2.upper()]
 
-    def _normalize_country(self, inp, output="code"):
+    def _normalize_country(self, inp: str, output="code"):
 
         def return_output(country):
             match output:
