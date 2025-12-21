@@ -4,6 +4,14 @@ from .client import CensusClient
 from .codes import HSCode
 from .errors import *
 
+from importlib import metadata
+
+try:
+    __version__ = metadata.version("ustrade")
+except metadata.PackageNotFoundError:
+    __version__ = "0.0.0"  
+
+
 _default_client: CensusClient | None = None
 
 def _get_default_client() -> CensusClient:

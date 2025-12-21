@@ -10,6 +10,8 @@ authors = [
   { name = "Fantin Sibony" }
 ]
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE.txt"]
 requires-python = ">=3.10"
 dependencies = [
   "requests",

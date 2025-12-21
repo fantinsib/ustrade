@@ -467,7 +467,7 @@ class CensusClient:
                 )
         
         elif isinstance(code, HSCode):
-            if code in self._codes_by_hs_codes:
+            if code.hscode in self._codes_by_hs_codes:
                 return code._get_children()
             else:
                 raise CodeNotFoundError(

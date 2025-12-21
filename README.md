@@ -27,6 +27,15 @@
 
 ## Installation
 
+### PyPI Install
+
+Install with pip :
+
+```bash
+pip install ustrade
+```
+
+### Github 
 Clone this repository and install via pip in editable mode:
 
 ```bash
