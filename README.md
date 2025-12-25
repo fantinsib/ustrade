@@ -6,7 +6,9 @@
 <p align="left">
   <img src="https://img.shields.io/badge/python-3.10%2B-blue" />
   <img src="https://img.shields.io/badge/status-active-success" />
+  <img src= "https://img.shields.io/pypi/v/ustrade" />
   <img src="https://img.shields.io/badge/license-MIT-green" />
+  <img src="https://static.pepy.tech/personalized-badge/ustrade?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads" />
 </p>
 
 ---
