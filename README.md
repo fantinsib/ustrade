@@ -22,8 +22,10 @@
   - `"4279"` (Census code)
 - HS codes lookup + product descriptions
 - Standardized DataFrame output with clean column names
-- Uses a cached internal client for efficiency
-- Zero configuration required
+
+For interactive exploration and non-Python usage, a Streamlit dashboard is available for this library at [https://ustrade.streamlit.app](https://ustrade.streamlit.app). 
+
+Source code : [https://github.com/fantinsib/ustrade_dashboard](https://github.com/fantinsib/ustrade_dashboard)
 
 ---
 
