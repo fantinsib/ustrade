@@ -19,7 +19,7 @@ class HSCode:
         return self.parent
 
 
-def _load_codes() -> tuple[list[HSCode], dict[str, HSCode]]:
+def _load_codes() -> tuple[list[HSCode], dict[str, HSCode], dict[str, HSCode]]:
     csv_path = files(__package__) / "data" / "harmonized-system.csv"
     codes: list[HSCode] = []
     with csv_path.open(encoding="utf-8") as f:
@@ -37,7 +37,7 @@ def _load_codes() -> tuple[list[HSCode], dict[str, HSCode]]:
                 )
             )
 
-    return codes, {c.hscode: c for c in codes}
+    return codes, {c.hscode: c for c in codes}, {c.description: c for c in codes}
 
 
 def _get_parent(code: str) -> str | None:
@@ -70,4 +70,3 @@ def build_tree_from_codes(codes: list[HSCode]) -> dict[str, HSCode]:
         parent_node.children.append(node.hscode)
 
     return code_dict
-

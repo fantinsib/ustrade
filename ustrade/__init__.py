@@ -5,6 +5,7 @@ from .codes import HSCode
 from .errors import *
 
 from importlib import metadata
+from typing import Literal
 
 try:
     __version__ = metadata.version("ustrade")
@@ -158,6 +159,31 @@ def get_product(hs: str) -> HSCode:
     """
     return _get_default_client().get_product(hs)
 
+def search_for_code(keyword : str | list[str], 
+                    mode : Literal["OR", "AND"] = "OR",
+                    in_codes : str = None) -> pd.DataFrame:
+    """
+    Research keywords in the HS Code description base.
+
+    Args:
+        keyword (str | list[str]):
+            A single keyword or a list of keywords.
+        mode (Literal["OR", "AND"]):
+            Exclusive or inclusive search if `keyword` is a list. Default uses "OR".
+            "OR" mode will return every code associated with at least one keyword.
+            "AND" mode will return only the codes associated with all the keywords.
+        in_codes (str):
+            The code chapter or heading to look in. Default None will search across all chapters.
+
+    Returns:
+        pd.DataFrame:
+            A dataframe containing the list of associated codes.
+
+    Examples:
+        >>> ut.search_for_code(keyword="oil", in_codes="27")
+    """
+    return _get_default_client().search_for_code(keyword, mode, in_codes)
+
 
 __all__ = [
     "CensusClient",
@@ -171,5 +197,6 @@ __all__ = [
     "get_country_by_iso2",
     "get_desc_from_code",
     "get_children_codes", 
-    "get_product"
+    "get_product",
+    "search_for_code",
 ]

@@ -2,7 +2,11 @@ import requests
 import socket
 from datetime import datetime
 import pandas as pd
+import re
 from urllib.parse import urlencode
+from typing import Literal
+import unicodedata
+
 from . import countries
 from .countries import Country
 from . import codes
@@ -23,7 +27,7 @@ class CensusClient:
         self.BASE_URL = "api.census.gov"
         self.BASE_PORT = 443
 
-        self._hs_codes, self._codes_by_hs_codes = codes._load_codes()
+        self._hs_codes, self._codes_by_hs_codes, self._desc_by_hs_codes = codes._load_codes()
         self._code_tree = codes.build_tree_from_codes(self._hs_codes)
 
         self.col_mapping = {
@@ -397,8 +401,9 @@ class CensusClient:
         """
         Returns the description of the specified HS code
 
-        ## Args:
-            hs (str): the HS code (ex: '1806')
+        Args:
+            hs (str): 
+                the HS code (ex: '1806')
         """
         if isinstance(hs, str):
             if hs in self._codes_by_hs_codes:
@@ -477,6 +482,81 @@ class CensusClient:
             raise InvalidCodeError(
                 f"Code must be a str or a HSCode instance - received a {type(code).__name__!r}"
             )
+
+
+    def _normalize_kw(self, s: str) -> str:
+        s = s.lower()
+        s = unicodedata.normalize("NFKD", s)
+        s = "".join(c for c in s if not unicodedata.combining(c))
+        s = re.sub(r"[^a-z0-9\s]+", " ", s)
+        return re.sub(r"\s+", " ", s).strip()
+
+    def _tokenize(self, s: str) -> list[str]:
+        return self._normalize_kw(s).split()     
+    
+
+    def search_for_code(self, keyword : str | list[str], 
+                        mode : Literal["OR", "AND"] = "OR",
+                        in_codes : str = None) -> pd.DataFrame:
+        """
+        Research keywords in the HS Code description base.
+
+        Args:
+            keyword (str | list[str]): 
+                a single keyword or a list of keywords.
+            mode (Literal["OR", "AND"]): 
+                exclusive or inclusive search if keyword is a list. Default uses "OR".
+                "OR" mode will return every code associated with at least one word of the list.
+                "AND" mode will return only the codes associated with all the words of the list.
+            in_codes (str):
+                the code chapter or heading to look in. Default None will search across all chapters. 
+        
+        Returns:
+            pd.Dataframe:
+                A dataframe containing the list of associated codes.
+
+        Examples:
+            >>> ut.search_for_code(keyword = "oil", in_codes = "27")
+
+        """
+        if in_codes is not None:
+            if in_codes not in self._codes_by_hs_codes:
+                raise CodeNotFoundError(f"Error : {in_codes} was not found as a valid code.")
+            
+        keywords = self._tokenize(keyword) if isinstance(keyword, str) else list(keyword)
+        keywords = [self._normalize_kw(k) for k in keywords]
+
+        results_code = []
+        results_desc = []
+
+        for desc, code in self._desc_by_hs_codes.items():
+            if in_codes is not None and not code.hscode.startswith(in_codes):
+                continue
+
+            tokens = self._tokenize(desc)
+
+            def keyword_matches(k: str) -> bool:
+                return any(tok.startswith(k) for tok in tokens)
+
+            if mode == "OR":
+                ok = any(keyword_matches(k) for k in keywords)
+            else:
+                ok = all(keyword_matches(k) for k in keywords)
+
+            if ok:
+                results_code.append(code.hscode)
+                results_desc.append(code.description)
+
+        return pd.DataFrame({
+            "Description": results_desc,
+            "Code": results_code
+        })
+
+
+
+
+
+        
         
     
 
